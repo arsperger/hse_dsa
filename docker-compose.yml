@@ -1,0 +1,10 @@
+
+services:
+  pytorch-mnist:
+    build: .
+    container_name: pytorch_mnist
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["python", "train_mnist.py"]
