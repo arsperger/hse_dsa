@@ -1,5 +1,5 @@
 FROM pytorch/pytorch:latest
 WORKDIR /app
 COPY . /app
-RUN pip install --no-cache-dir torchvision matplotlib
-CMD ["python", "train_mnist.py"]
+RUN pip install --no-cache-dir streamlit torchvision matplotlib pandas pillow
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
