@@ -5,3 +5,4 @@ digits
 *.csv
 *.pth
 __pycache__
+!static/*.png
