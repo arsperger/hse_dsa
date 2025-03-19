@@ -12,8 +12,4 @@ class SGD:
 
     def zero_grad(self):
         for param in self.parameters:
-            if param.grad is None:
-                param.grad = param.data * 0.0
-            else:
-                param.grad.fill(0)
-
+            param.grad = np.zeros_like(param.grad)
