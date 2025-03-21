@@ -46,10 +46,17 @@ st.title("🧠 MNIST Digit Classifier with Streamlit")
 st.sidebar.header("Options")
 page = st.sidebar.radio("Choose a feature", ["📈 Training Analytics", "✏️ Draw a Digit", "📤 Upload an Image"])
 
-if page == "📈 Training Analytics":
-    st.header("📊 Training Loss & Accuracy")
+# svm training results (no epochs)
+svm_training_time = 115200  # seconds
+svm_accuracy = 95.80
 
-    fig, ax = plt.subplots(1, 2, figsize=(12, 4))
+nn_total_time = history["time"].sum()
+nn_final_accuracy = history["accuracy"].iloc[-1]
+
+if page == "📈 Training Analytics":
+    st.header("📊 Training Loss, Accuracy & Time")
+
+    fig, ax = plt.subplots(1, 3, figsize=(12, 4))
 
     ax[0].plot(history["epoch"], history["loss"], marker='o', linestyle='-', color='b')
     ax[0].set_title("Training Loss Curve")
@@ -61,22 +68,43 @@ if page == "📈 Training Analytics":
     ax[1].set_xlabel("Epochs")
     ax[1].set_ylabel("Accuracy (%)")
 
+    # Add horizontal lines for SVM results
+    ax[1].axhline(y=svm_accuracy, color="green", linestyle="--", label="SVM Accuracy")
+
+    ax[2].plot(history["epoch"], history["time"], marker='o', linestyle='-', color='b')
+    ax[2].set_title("Training Time Curve")
+    ax[2].set_xlabel("Epochs")
+    ax[2].set_ylabel("Time (s)")
+
     st.pyplot(fig)
 
-elif page == "✏️ Draw a Digit":
-    st.header("🎨 Draw a Digit Below")
-    canvas = st.canvas(draw_mode="freedraw", height=200, width=200)
+    # Compare total training time
+    st.header("Compare Total Training Time")
+    training_time_data = pd.DataFrame({
+        "Model": ["NN", "SVM"],
+        "Training Time (sec)": [nn_total_time, svm_training_time]
+    })
 
-    if st.button("Predict"):
-        img = canvas.image_data  # Get drawn image
-        img = Image.fromarray(np.uint8(img)).convert("L")  # Convert to grayscale
-        img = transform(img).unsqueeze(0).to(device)
+    fig2, ax2 = plt.subplots()
+    ax2.bar(training_time_data["Model"], training_time_data["Training Time (sec)"],
+       color=["blue", "orange"])
+    ax2.set_ylabel("Training Time (sec)")
+    ax2.set_title("Training Time Comparison")
+    st.pyplot(fig2)
 
-        with torch.no_grad():
-            outputs = model(img)
-            _, predicted = torch.max(outputs, 1)
+    # compare final accuracy
+    st.header("Compare Final Accuracy")
+    accuracy_data = pd.DataFrame({
+        "Model": ["NN", "SVM"],
+        "Accuracy (%)": [nn_final_accuracy, svm_accuracy]
+    })
 
-        st.write(f"📝 Prediction: **{predicted.item()}**")
+    fig3, ax = plt.subplots()
+    ax.bar(accuracy_data["Model"], accuracy_data["Accuracy (%)"],
+       color=["blue", "orange"])
+    ax.set_ylabel("Accuracy (%)")
+    ax.set_title("Final Accuracy Comparison")
+    st.pyplot(fig3)
 
 elif page == "📤 Upload an Image":
     st.header("🖼 Upload a Digit Image")

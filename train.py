@@ -1,3 +1,4 @@
+import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -36,13 +37,14 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Store loss and accuracy
-history = {"epoch": [], "loss": [], "accuracy": []}
+history = {"epoch": [], "loss": [], "accuracy": [], "time": []}
 
 epochs = 5
 for epoch in range(epochs):
     running_loss = 0.0
     correct = 0
     total = 0
+    start_time = time.time()
 
     for images, labels in trainloader:
         images, labels = images.to(device), labels.to(device)
@@ -60,12 +62,14 @@ for epoch in range(epochs):
 
     epoch_loss = running_loss / len(trainloader)
     epoch_accuracy = 100 * correct / total
+    epoch_time = time.time() - start_time
 
     history["epoch"].append(epoch + 1)
     history["loss"].append(epoch_loss)
     history["accuracy"].append(epoch_accuracy)
+    history["time"].append(epoch_time)
 
-    print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}, Accuracy: {epoch_accuracy:.2f}%")
+    print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}, Accuracy: {epoch_accuracy:.2f}%, Time: {epoch_time:.2f}s")
 
 print("Training Completed!")
 
