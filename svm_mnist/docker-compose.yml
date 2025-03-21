@@ -1,0 +1,9 @@
+
+services:
+  svm_mnist:
+    build: .
+    container_name: svm_mnist
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
