@@ -6,3 +6,5 @@ digits
 *.pth
 __pycache__
 !static/*.png
+!svm_mnist/predictions.png
+*.pkl
