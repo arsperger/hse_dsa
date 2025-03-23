@@ -1,6 +1,8 @@
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 import joblib
+import pandas as pd
 from sklearn.datasets import fetch_openml
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
@@ -53,12 +55,15 @@ print(f"Best cross-validation score: {grid_search.best_score_:.4f}")
 # Get best model
 best_svm = grid_search.best_estimator_
 
-# Evaluate on test set
+# Evaluate on test set with inference time measurement
 print("\nEvaluating on test set...")
+inference_start = time.time()
 y_pred = best_svm.predict(X_test_scaled)
-accuracy = accuracy_score(y_test, y_pred)
+inference_time = time.time() - inference_start
 
+accuracy = accuracy_score(y_test, y_pred)
 print(f"Test accuracy: {accuracy * 100:.2f}%")
+print(f"Inference time on test set: {inference_time:.4f} seconds")
 print("\nClassification Report:")
 print(classification_report(y_test, y_pred))
 
@@ -101,4 +106,15 @@ print("Saving model and results...")
 joblib.dump(best_svm, "svm_best_model.pkl")
 joblib.dump(scaler, "svm_scaler.pkl")
 joblib.dump(grid_search.cv_results_, "grid_search_results.pkl")
-print("Model saved to svm_best_model.pkl")
+
+# Create a dictionary to store key metrics including inference time
+training_history = {
+    "best_params": [str(grid_search.best_params_)],
+    "best_cv_score": [grid_search.best_score_],
+    "test_accuracy": [accuracy],
+    "inference_time": [inference_time]
+}
+df_history = pd.DataFrame(training_history)
+df_history.to_csv("training_history.csv", index=False)
+
+print("Model and training history saved.")
